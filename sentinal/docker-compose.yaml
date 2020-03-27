@@ -1,0 +1,55 @@
+version: '3'
+services:
+
+  redis1:
+    image: redis:5.0.8-alpine
+    networks:
+      foonet:
+        ipv4_address: 172.22.1.10
+
+  sentinel1:
+    image: redis:5.0.8-alpine
+    volumes:
+      - ./configs/sentinel1.conf:/etc/sentinel.conf
+    command: redis-server /etc/sentinel.conf --sentinel
+    networks:
+      foonet:
+        ipv4_address: 172.22.1.11
+
+  redis2:
+    image: redis:5.0.8-alpine
+    networks:
+      foonet:
+        ipv4_address: 172.22.1.20
+
+  sentinel2:
+    image: redis:5.0.8-alpine
+    volumes:
+      - ./configs/sentinel2.conf:/etc/sentinel.conf
+    command: redis-server /etc/sentinel.conf --sentinel
+    networks:
+      foonet:
+        ipv4_address: 172.22.1.21
+
+  redis3:
+    image: redis:5.0.8-alpine
+    networks:
+      foonet:
+        ipv4_address: 172.22.1.30
+
+  sentinel3:
+    image: redis:5.0.8-alpine
+    volumes:
+      - ./configs/sentinel3.conf:/etc/sentinel.conf
+    command: redis-server /etc/sentinel.conf --sentinel
+    networks:
+      foonet:
+        ipv4_address: 172.22.1.31
+
+networks:
+  foonet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.1.0/24

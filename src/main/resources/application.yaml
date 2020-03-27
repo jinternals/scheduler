@@ -1,0 +1,11 @@
+
+spring:
+  redis:
+    sentinel:
+      master: my_redis_master
+      nodes:
+        - 172.22.1.11
+        - 172.22.1.21
+        - 172.22.1.31
+    lettuce:
+      shutdown-timeout: 200ms
