@@ -1,4 +1,4 @@
 package com.jinternals.scheduler.exceptions;
 
-public class ScheduleItemNotFound {
+public class ScheduleItemNotFound extends Exception {
 }

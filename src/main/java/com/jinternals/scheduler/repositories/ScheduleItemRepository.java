@@ -1,4 +1,8 @@
 package com.jinternals.scheduler.repositories;
 
-public interface ScheduleItemRepository {
+import com.jinternals.scheduler.controllers.request.ScheduleItem;
+import org.springframework.data.repository.CrudRepository;
+
+public interface ScheduleItemRepository extends CrudRepository<ScheduleItem, String> {
+
 }

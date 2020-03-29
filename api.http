@@ -1,0 +1,14 @@
+GET http://localhost:80/api/schedules
+Accept: application/json
+
+###
+POST http://localhost:80/api/schedule
+Content-Type: application/json
+
+{
+ "id": "some-id-1",
+ "triggerTime": 1585387892
+}
+
+###
+

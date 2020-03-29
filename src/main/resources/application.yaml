@@ -1,3 +1,13 @@
+server:
+  port: 8080
+
+management:
+  endpoints:
+    health:
+      show-details: "ALWAYS"
+    web:
+      exposure:
+        include: "*"
 
 spring:
   redis:
@@ -9,3 +19,6 @@ spring:
         - 172.22.1.31
     lettuce:
       shutdown-timeout: 200ms
+    port: 26379
+
+debug: true
