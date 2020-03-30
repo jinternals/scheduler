@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
@@ -19,13 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.jinternals.scheduler.constants.SchedulerConstants.ID;
 import static com.jinternals.scheduler.constants.SchedulerConstants.SCHEDULED_ITEMS_STREAM_NAME;
 import static java.time.LocalDateTime.now;
 import static java.time.LocalDateTime.ofInstant;
+import static java.util.Collections.singletonMap;
+import static java.util.Objects.nonNull;
+import static org.springframework.data.redis.connection.stream.MapRecord.create;
+import static org.springframework.data.redis.connection.stream.StreamRecords.newRecord;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Service
@@ -51,19 +58,15 @@ public class SchedulerService {
     @SchedulerLock(name = "scheduled-items-lock")
     public void perMinute() {
         String bucketId = bucketService.getBucketId(now());
-        log.info("Processing bucket with id {}", bucketId);
+        while (true) {
+            log.info("Processing bucket with id {}", bucketId);
+            String id = redisTemplate.opsForSet().pop(bucketId);
+            if (nonNull(id)) {
+                log.info("Processing scheduled item with id {}", id);
+                redisTemplate.opsForStream().add(create(SCHEDULED_ITEMS_STREAM_NAME, singletonMap(ID, id)));
+            } else return;
+        }
 
-        redisTemplate.execute(new SessionCallback<List<Object>>() {
-            public List<Object> execute(RedisOperations operations) throws DataAccessException {
-                operations.multi();
-                String id = redisTemplate.opsForSet().pop(bucketId);
-                if(Objects.nonNull(id))
-                {
-                    redisTemplate.opsForStream().add(StreamRecords.newRecord().in(SCHEDULED_ITEMS_STREAM_NAME).ofObject(id)).getValue();
-                }
-                return operations.exec();
-            }
-        });
     }
 
     @Transactional

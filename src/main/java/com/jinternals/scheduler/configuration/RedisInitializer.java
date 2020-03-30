@@ -10,7 +10,8 @@ import static com.jinternals.scheduler.constants.SchedulerConstants.SCHEDULED_IT
 import static com.jinternals.scheduler.constants.SchedulerConstants.SCHEDULED_ITEMS_STREAM_NAME;
 
 @Component
-public class RedisInitilizer {
+public class RedisInitializer {
+
     private StringRedisTemplate redisTemplate;
 
     @PostConstruct
@@ -23,7 +24,8 @@ public class RedisInitilizer {
     }
 
     @Autowired
-    public SchedulerStreamListener(StringRedisTemplate redisTemplate) {
+    public RedisInitializer(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
+
 }

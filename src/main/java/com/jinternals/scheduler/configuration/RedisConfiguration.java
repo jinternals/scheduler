@@ -1,6 +1,5 @@
 package com.jinternals.scheduler.configuration;
 
-import com.jinternals.scheduler.constants.SchedulerConstants;
 import com.jinternals.scheduler.listeners.SchedulerStreamListener;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
@@ -20,17 +19,20 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer.Stre
 import org.springframework.data.redis.stream.Subscription;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.net.InetAddress;
 import java.time.Duration;
 
-import static com.jinternals.scheduler.constants.SchedulerConstants.SCHEDULED_ITEMS_GROUP_NAME;
-import static com.jinternals.scheduler.constants.SchedulerConstants.SCHEDULED_ITEMS_STREAM_NAME;
+import static com.jinternals.scheduler.constants.SchedulerConstants.*;
+import static java.lang.String.format;
 import static org.springframework.data.redis.connection.stream.Consumer.from;
+import static org.springframework.data.redis.connection.stream.ReadOffset.lastConsumed;
 import static org.springframework.data.redis.connection.stream.StreamOffset.create;
 
 @Configuration
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "30s")
 public class RedisConfiguration {
+
 
     @Autowired
     private RedisProperties redisProperties;
@@ -59,7 +61,8 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public Subscription subscription(SchedulerStreamListener schedulerStreamListener, RedisConnectionFactory redisConnectionFactory) throws InterruptedException {
+    public Subscription subscription(SchedulerStreamListener schedulerStreamListener,
+                                     RedisConnectionFactory redisConnectionFactory) {
 
         StreamMessageListenerContainerOptions<String, MapRecord<String, String, String>> containerOptions = StreamMessageListenerContainerOptions
                 .builder().pollTimeout(Duration.ofMillis(100)).build();
@@ -68,12 +71,22 @@ public class RedisConfiguration {
                 containerOptions);
 
         Subscription subscription = container.receive(
-                from(SCHEDULED_ITEMS_GROUP_NAME, "consumer-1"),
-                create(SCHEDULED_ITEMS_STREAM_NAME, ReadOffset.lastConsumed()), schedulerStreamListener);
+                from(SCHEDULED_ITEMS_GROUP_NAME, format(CONSUMER_NAME, getHostName())),
+                create(SCHEDULED_ITEMS_STREAM_NAME, lastConsumed()), schedulerStreamListener);
 
         container.start();
 
         return subscription;
+    }
+
+    private String getHostName() {
+        String hostAddress = "";
+        try {
+            hostAddress =   InetAddress.getLocalHost().getHostName();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return hostAddress;
     }
 
 //    @Bean

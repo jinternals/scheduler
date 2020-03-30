@@ -6,8 +6,8 @@ POST http://localhost:80/api/schedule
 Content-Type: application/json
 
 {
- "id": "some-id-1",
- "triggerTime": 1585387892
+ "id": "some-id-10",
+ "triggerTime": 1585585560
 }
 
 ###

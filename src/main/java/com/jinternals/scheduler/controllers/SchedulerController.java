@@ -30,5 +30,4 @@ public class SchedulerController {
         return schedulerService.getScheduleItem(id);
     }
 
-
 }
