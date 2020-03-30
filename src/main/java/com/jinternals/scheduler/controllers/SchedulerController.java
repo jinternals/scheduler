@@ -21,8 +21,8 @@ public class SchedulerController {
     }
 
     @PostMapping( value = "/schedule", produces = APPLICATION_JSON_VALUE)
-    public void schedule(@RequestBody ScheduleItem scheduleItem) {
-        schedulerService.scheduleItem(scheduleItem);
+    public ScheduleItem schedule(@RequestBody ScheduleItem scheduleItem) {
+        return schedulerService.scheduleItem(scheduleItem);
     }
 
     @GetMapping(value = "/schedule/{id}", produces = APPLICATION_JSON_VALUE)

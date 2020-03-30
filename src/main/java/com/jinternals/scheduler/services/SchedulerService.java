@@ -70,7 +70,7 @@ public class SchedulerService {
     }
 
     @Transactional
-    public void scheduleItem(ScheduleItem scheduleItem) {
+    public ScheduleItem scheduleItem(ScheduleItem scheduleItem) {
         if (isEmpty(scheduleItem.getId())) {
             scheduleItem.setId(UUID.randomUUID().toString());
         }
@@ -78,6 +78,7 @@ public class SchedulerService {
         log.info("Scheduling item in bucket id {}", bucketId);
         ScheduleItem saved = scheduleItemRepository.save(scheduleItem);
         redisTemplate.opsForSet().add(bucketId, saved.getId());
+        return saved;
     }
 
     public ScheduleItem getScheduleItem(String id) throws ScheduleItemNotFound {
