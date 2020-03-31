@@ -26,6 +26,7 @@ public class SchedulerController {
     }
 
     @GetMapping(value = "/schedule/{id}", produces = APPLICATION_JSON_VALUE)
+    @ResponseBody
     public ScheduleItem scheduleItems(@PathVariable("id") String id) throws ScheduleItemNotFound {
         return schedulerService.getScheduleItem(id);
     }

@@ -1,3 +1,7 @@
+GET http://localhost:80/api/schedule/1
+Accept: application/json
+
+###
 POST http://localhost:80/api/schedule
 Content-Type: application/json
 

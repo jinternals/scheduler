@@ -2,6 +2,7 @@ package com.jinternals.scheduler.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jinternals.scheduler.controllers.request.ScheduleItem;
+import com.jinternals.scheduler.exceptions.ScheduleItemNotFound;
 import com.jinternals.scheduler.services.SchedulerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +44,8 @@ public class SchedulerControllerTest {
         given(this.schedulerService.scheduleItem(scheduleItem))
                 .willReturn(scheduleItem);
 
-        this.mvc.perform(post("/api/schedule").contentType(APPLICATION_JSON_VALUE)
+        this.mvc.perform(post("/api/schedule")
+                .contentType(APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(scheduleItem)))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -59,12 +61,25 @@ public class SchedulerControllerTest {
         given(this.schedulerService.getScheduleItem("some-id"))
                 .willReturn(scheduleItem);
 
-        this.mvc.perform(get("/api/schedule/{id}","some-id").contentType(APPLICATION_JSON_VALUE))
+        this.mvc.perform(get("/api/schedule/{id}", "some-id")
+                .contentType(APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.id", is("some-id")))
                 .andExpect(jsonPath("$.triggerTime", is(scheduleItem.getTriggerTime().toString())));
     }
 
+    @Test
+    public void shouldThrowScheduleItemNotFound() throws Exception {
+
+        given(this.schedulerService.getScheduleItem("some-id"))
+                .willThrow(new ScheduleItemNotFound("Scheduled Item with id some-id not found."));
+
+        this.mvc.perform(get("/api/schedule/{id}", "some-id")
+                .contentType(APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+
+    }
 
 }
