@@ -20,5 +20,3 @@ spring:
     lettuce:
       shutdown-timeout: 200ms
     port: 26379
-
-debug: true
